@@ -1,0 +1,17 @@
+BEGIN_PROLOG
+
+MyAnalysis:
+{
+    module_type:    "MyAnalysis"
+
+    # module labels
+    LArGeantProducerLabel:      "largeant"
+    IonAndScintProducerLabel:   "IonAndScint"
+    IonAndScintInstanceLabel:   "priorSCE"
+    SimChannelProducerLabel:    "tpcrawdecoder"
+    SimChannelInstanceLabel:    "simpleSC"
+    RawDigitProducerLabel:      "tpcrawdecoder"
+    RawDigitInstanceLabel:      "daq"
+}
+
+END_PROLOG

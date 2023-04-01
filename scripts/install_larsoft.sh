@@ -1,34 +1,14 @@
 #! /bin/bash
-#---------------------Directory---------------------#
-# this handy piece of code determines the relative
-# directory that this script is in.
-SOURCE="${BASH_SOURCE[0]}"
-# resolve $SOURCE until the file is no longer a symlink
-while [ -h "$SOURCE" ]; do 
-  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-  SOURCE="$(readlink "$SOURCE")"
-  # if $SOURCE was a relative symlink, we need to resolve it relative 
-  # to the path where the symlink file was located
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" 
-done
-LARSOFT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )/../"
-
-#---------------------Installation Directory--------#
-INSTALL_DIRECTORY=$LARSOFT_DIR/larsoft
-mkdir -p $INSTALL_DIRECTORY
-cd $INSTALL_DIRECTORY
-
-#--------------------Versioning---------------------#
-# specify the version of the larsoft packages.
-LARSOFT_VERSION=v09_31_00
-QUALS=e20:prof
+#------------Setup Environment Variables------------#
+source common.sh
 
 #--------------------Setup LArSoft------------------#
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-setup larsoft $LARSOFT_VERSION -q $QUALS
+setup larsoft $LARSOFT_VERSION -q $LARSOFT_QUALS
 setup ninja
 
 #--------------------Create new development---------#
+cd $LARSOFT_INSTALL_DIRECTORY
 mrb newDev
 source localProducts*/setup
 
@@ -38,11 +18,20 @@ cd $MRB_SOURCE
 # e.g. 
 # "mrb g larsoft@<version>"
 # "mrb g larsim@<version>"
-mrb g larsoft@$LARSOFT_VERSION 
+mrb g larsoft@$LARSOFT_VERSION
+# mrb g larsoftobj_suite@LARSOFT_VERSION
+# mrb g larutils@LARSOFT_VERSION
+# mrb g larbatch@LARSOFT_VERSION
+# mrb g dune_suite@LARSOFT_VERSION
+# mrb g -d dune_raw_data dune-raw-data
 
 #------------------Custom code part-----------------#
 # here we put any special code that needs to
 # be executed for the custom package.
+cd $MRB_SOURCE/larana/
+mkdir -p $MY_CUSTOM_ANALYSIS_DIR
+cp -r $ANALYSIS_TEMPLATE_DIR/src $MRB_SOURCE/larana/$MY_CUSTOM_ANALYSIS_DIR
+sed -i '$ a add_subdirectory(MyAnalysis)' CMakeLists.txt
 
 #------------------Installation and ninja-----------#
 cd $MRB_BUILDDIR
@@ -58,4 +47,4 @@ CUSTOM_FHICL_PATH=""
 export FW_SEARCH_PATH="$FW_SEARCH_PATH:$CUSTOM_SEARCH_PATH"
 export FHICL_FILE_PATH="$FHICL_FILE_PATH:$CUSTOM_FHICL_PATH"
 
-cd $LARSOFT_DIR
+cd $ANALYSIS_TEMPLATE_DIR
